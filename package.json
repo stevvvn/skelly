@@ -1,0 +1,21 @@
+{
+  "name": "skelly",
+  "bin": {
+    "skelly": "skelly.js"
+  },
+  "version": "1.0.0",
+  "description": "Spooky scaffolding",
+  "main": "skelly.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Steven Snyder <steve@rmer.info>",
+  "license": "MIT",
+  "dependencies": {
+    "change-case": "^3.1.0",
+    "mkdirp": "^0.5.1",
+    "prompts": "^2.1.0",
+    "walk": "^2.3.14",
+    "yargs": "^13.2.4"
+  }
+}
