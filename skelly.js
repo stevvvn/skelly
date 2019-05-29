@@ -95,7 +95,7 @@ walker.on('file', async (root, { name }, next) => {
 
 walker.on('end', () => {
   const dest = typeof output === 'string' ? output : output(ctx, results);
-  if (!dest) {
+  if (!dest || typeof dest !== 'string') {
     return;
   }
   console.log(dest);

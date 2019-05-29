@@ -4,7 +4,7 @@
 
 Skelly is one of the spookiest libraries available for doing scaffolding & templating of files according to some user-supplied parameters.
 
-E.g., if all of your web components or models or etc follow some convention and boilerplate you might potentially save aggregate _minutes_ of time by creating a template for them and running `skelly` to generate new instances.
+E.g., if all of your web components or models or etc follow some convention and boilerplate you might potentially save aggregate _minutes_ of time over one or two lifetimes by creating a template for them and running `skelly` to generate new instances.
 
 ## Templates
 ### Structure
@@ -12,12 +12,12 @@ In your project root (or wherever `package.json` lives), create a folder `.bones
 
 In `.bones`, for each type of scaffolding you want to do, create a folder. For example, you might have `component` and `model` to create entities of those types based on their name. You can nest these if you want. If you make one called `default`, `skelly` will go for it when no type is specified on the command line. It's optional.
 
-For each type, you can add as many files and folders as you want representing output files. For the files, tack an extra `.js` on the end. If you want to generate `foo/config.ini`, make `$(type)/foo/config.ini.js`. Double up to `.js.js` when you're generate another JavaScript file.
+For each type, you can add as many files and folders as you want representing output files. For the files, tack an extra `.js` on the end. If you want to generate `foo/config.ini`, make `$(type)/foo/config.ini.js`. Double up to `.js.js` when you're generating another JavaScript file.
 
 If the path is dynamic based on the user input, you can name the file anything (`.js`) and utilize a slightly different syntax to define it.
 
 ### Definitions
-The syntax for static files is:
+The basic syntax for static files is:
 
 ```javascript
 module.exports = (skelly, helpers) => skelly`<p>Hello, ${ 'name' }</p>`;
@@ -49,7 +49,7 @@ module.exports = (skelly, helpers) => skelly`<p>Hello ${
 
 Since I often find myself needed snake_cased or camelCased or etc versions of a common input term, helpers includes all the utilities in [change-case](https://github.com/blakeembrey/change-case).
 
-You can add your own helpers, in `.bones/helpers.js`. These become available to all your scaffolding types through the `helpers` parameter. It's defined as a map:
+You can add your own helpers, in `.bones/helpers.js`. These become available to all your scaffolding types through the `helpers` parameter. Helpersa defined as a map:
 
 `.bones/helpers.js`
 ```javascript
@@ -75,13 +75,13 @@ In its simplest form you can just output a base directory statically, if it alwa
 module.exports = '/etc/my-daemon';
 ```
 
-More likely the output depends on one or more of the parameters, so you can define a callback that returns the path:
+More likely the output depends on one or more of the parameters, so you can define a callback that returns a derived path:
 ```javascript
 module.exports = ((__baseDir, name), output) => `${ __baseDir }/components/${ name }`;
 ```
 The first parameter gives you everything the user entered while filling in the templates as well as `__baseDir`, which is where your `package.json` is.
 
-The second parameter contains all the filled-in content of your templates, so you can also just do whatever you'd like with it here. Don't return a string (or a Promise resolve to a string) and Skelly won't attempt to write the output anywhere:
+The second parameter contains all the filled-in content of your templates, so you can also just do whatever you'd like with it here. Don't return a string (or a Promise resolving to a string) and Skelly won't attempt to write the output anywhere:
 ```javascript
 const db = require ('../../lib/db/redis');
 module.exports = (_params, output) => Promise.all(
