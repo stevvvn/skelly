@@ -116,7 +116,3 @@ walker.on('end', () => {
     console.log(' .');
   });
 });
-
-(async () => {
-  console.log(await skelly`<p>Hello ${ [ 'name', str => str.toUpperCase(), str => str.split('').join('-') ] }</p>`)
-})();
