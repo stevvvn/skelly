@@ -25,6 +25,12 @@ module.exports = (skelly, helpers) => skelly`<p>Hello, ${ 'name' }</p>`;
 
 Pass your tagged template to skelly, and it fills it in based on user input.
 
+If the file is always the same, you can just export a string directly:
+
+```javascript
+module.exports = '/** fill this out */';
+```
+
 To specify which information you want, you can provide  a string name for it and it will just prompt for that: `name?`
 
 If you're feeling generous instead of a string you can supply an object fitting the format supported by [prompts](https://github.com/terkelg/prompts). This lets you do things like provide a longer description, a default value, a verification function, etc.

@@ -95,7 +95,10 @@ walker.on('file', async (root, { name }, next) => {
     return next();
   }
   const relDir = root === taskPath ? '' : root.replace(`${ taskPath }/`, '');
-  const res = await require(`${ root }/${ name }`)(skelly, utils);
+  let res = require(`${ root }/${ name }`);
+  if (typeof res !== 'string') {
+    res = await res(skelly, utils);
+  }
   const destName = Array.isArray(res) ? await res[0] : name.replace(/[.]js$/, '');
 
   results[`${ relDir }/${ destName }`.replace(/^\//, '')] = Array.isArray(res) ? await res[1] : res;
