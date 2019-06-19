@@ -77,14 +77,17 @@ module.exports = '/etc/my-daemon';
 
 More likely the output depends on one or more of the parameters, so you can define a callback that returns a derived path:
 ```javascript
-module.exports = ({ __baseDir, name }, output) => `${ __baseDir }/components/${ name }`;
+module.exports = (skelly, _helpers) => skelly`components/${ name }`; // relative to your package.json
 ```
-The first parameter gives you everything the user entered while filling in the templates as well as `__baseDir`, which is where your `package.json` is.
 
-The second parameter contains all the filled-in content of your templates, so you can also just do whatever you'd like with it here. Don't return a string (or a Promise resolving to a string) and Skelly won't attempt to write the output anywhere:
+You can also define your own arbitrary storage strategy by returning _another_ function.
+
+The first parameter contains all the filled-in content of your templates, so you can also just do whatever you'd like with it here. Don't return a string (or a Promise resolving to a string) and Skelly won't attempt to write the output anywhere.
+
+The secpmd parameter supplied to the nested function gives you everything the user entered while filling in the template, in case it's useful to access that directly:
 ```javascript
 const db = require ('../../lib/db/redis');
-module.exports = (_params, output) => Promise.all(
+module.exports = (_skelly, _helpers) => (output, _params) => Promise.all(
 	Object.entries(output)
 		.map(([ key, val ]) => db.set(key, val))
 );

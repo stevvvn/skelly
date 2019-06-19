@@ -11,6 +11,7 @@ const { walk } = require('walk');
 let utils = { ...caseUtils };
 
 const ctx = { __baseDir: module.paths[0] };
+const helpers = [];
 async function skelly(strs, ...params) {
   const out = [];
   for (const [ idx, str ] of strs.entries()) {
@@ -19,7 +20,6 @@ async function skelly(strs, ...params) {
       break;
     }
     let param = params[idx];
-    let helpers = [];
     if (Array.isArray(param)) {
       if (!param[0]) {
         console.error(param);
@@ -57,15 +57,21 @@ async function skelly(strs, ...params) {
   return out.join('');
 }
 
-const tplPath = resolve(`${ module.paths[0] }/../.bones/`);
-if (!fs.existsSync(tplPath)) {
-  console.error('no bones found');
-  exit(1);
+let tplPath = process.cwd();
+while (!fs.existsSync(`${ tplPath }/.bones`)) {
+	const prnt = resolve(`${ tplPath }/..`);
+	if (prnt === tplPath) {
+		console.error('no bones found in cwd or any of its parents');
+		process.exit(1);
+	}
+	tplPath = prnt;
 }
+tplPath += '/.bones';
+console.log({ tplPath, argv });
 if (fs.existsSync(`${ tplPath }/helpers.js`)) {
   utils = { ...utils, ...require(`${ tplPath }/helpers`) };
 }
-const taskPath = `${ tplPath }/${ argv[0] || 'default' }`;
+const taskPath = `${ tplPath }/${ argv._[0] || 'default' }`;
 if (!fs.existsSync(taskPath)) {
   console.error(`no bones found in ${ taskPath }`);
   process.exit(1);
@@ -75,7 +81,10 @@ if (!fs.existsSync(`${ taskPath }/output.skelly.js`)) {
   console.error(`no output function provided in ${ taskPath }/output.skelly.js. this file should export a function that takes all the gathered parameters and output tree, and either returns a string base path for the output or does some persistences logic itself and returns undefined.`);
   process.exit(1);
 }
-const output = require(`${ taskPath }/output.skelly.js`);
+let output = require(`${ taskPath }/output.skelly.js`);
+if (typeof output !== 'string') {
+  output = output(skelly, helpers);
+}
 
 const ignore = /^[.]|[.]skelly[.]js|(?<![.]js)$$/;
 const walker = walk(taskPath);
@@ -93,18 +102,26 @@ walker.on('file', async (root, { name }, next) => {
   next();
 });
 
-walker.on('end', () => {
-  const dest = typeof output === 'string' ? output : output(ctx, results);
+walker.on('end', async () => {
+  let dest = await output;
+  if (typeof dest !== 'string') {
+  	dest = dest(results, ctx);
+  }
   if (!dest || typeof dest !== 'string') {
     return;
   }
+  if (!/^\//.test(dest)) {
+	dest = resolve(`${ tplPath }/../${ dest }`);
+  }
   console.log(dest);
   const dirCache = {};
-  Object.entries(results).forEach(([ path, content ]) => {
+  Object.entries(results).forEach(async ([ path, content ]) => {
     const fname = `${ dest }/${ path }`;
     const dir = dirname(fname);
     if (!dirCache[dir]) {
-      mkdirp(dir);
+		await new Promise((resolve, reject) => mkdirp(dir, (err) =>
+			err ? reject(err) : resolve()
+		));
       dirCache[dir] = 1;
     }
     process.stdout.write(fname.replace(`${ dir }/`, '\t'));
