@@ -19,13 +19,14 @@ async function skelly(strs, ...params) {
     if (params[idx] === undefined) {
       break;
     }
-    let param = params[idx];
+	 let param = params[idx];
+	 let transform = [];
     if (Array.isArray(param)) {
       if (!param[0]) {
         console.error(param);
         throw new Error(`malformed parameter #${idx + 1}`);
       }
-      [ param, ...helpers ] = param;
+      [ param, ...transform ] = param;
     }
     if (typeof param === 'string') {
       param = { name: param };
@@ -35,7 +36,7 @@ async function skelly(strs, ...params) {
       if (argv[param.name]) {
         ctx[param.name] = argv[param.name];
       }
-      else {
+		else {
         ctx[param.name] = (await prompts({
           type: 'text',
           message: param.name,
@@ -49,7 +50,7 @@ async function skelly(strs, ...params) {
     }
 
     let val = ctx[param.name];
-    for (const helper of helpers) {
+    for (const helper of transform) {
       val = await helper(val);
     }
     out.push(val);
