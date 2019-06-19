@@ -104,3 +104,5 @@ Prefill is an optional list of parameter values, which won't be prompted for if 
 
 Any parameters not supplied in this way will be prompted for. If Skelly writes any files as a result of the run they'll be listed at the end.
 
+You can pass `--force` or `-f` to overwrite files even when they already exist, but caveat emptor.
+

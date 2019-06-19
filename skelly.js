@@ -68,7 +68,6 @@ while (!fs.existsSync(`${ tplPath }/.bones`)) {
 	tplPath = prnt;
 }
 tplPath += '/.bones';
-console.log({ tplPath, argv });
 if (fs.existsSync(`${ tplPath }/helpers.js`)) {
   utils = { ...utils, ...require(`${ tplPath }/helpers`) };
 }
@@ -126,7 +125,7 @@ walker.on('end', async () => {
       dirCache[dir] = 1;
     }
     process.stdout.write(fname.replace(`${ dir }/`, '\t'));
-    if (fs.existsSync(fname)) {
+    if (!argv.f && !argv.force && fs.existsSync(fname)) {
       console.log(' exists, skipping.');
       return;
     }
